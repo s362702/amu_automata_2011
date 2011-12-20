@@ -11,12 +11,12 @@ import pl.edu.amu.wmi.daut.base.CharClassTransitionLabel;
 import pl.edu.amu.wmi.daut.base.State;
 
 public class CharClassOperator extends NullaryRegexpOperator {
-    private String charClass;
+    private String c;
 
 
 
-    public void setCharClass(String charClass) {
-                this.charClass = charClass;
+    public void setCharClass(String a) {
+                this.c = a;
     }
     @Override
     public AutomatonSpecification createFixedAutomaton() {
@@ -24,7 +24,7 @@ public class CharClassOperator extends NullaryRegexpOperator {
         State q0 = automaton.addState();
         State q1 = automaton.addState();
         automaton.addTransition(q0, q1, new
-CharClassTransitionLabel(charClass));
+CharClassTransitionLabel(c));
         automaton.markAsInitial(q0);
         automaton.markAsFinal(q1);
 
