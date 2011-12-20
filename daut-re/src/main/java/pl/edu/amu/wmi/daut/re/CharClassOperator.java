@@ -4,21 +4,19 @@
  */
 package pl.edu.amu.wmi.daut.re;
 
+
 import pl.edu.amu.wmi.daut.base.AutomatonSpecification;
 import pl.edu.amu.wmi.daut.base.NaiveAutomatonSpecification;
 import pl.edu.amu.wmi.daut.base.CharClassTransitionLabel;
 import pl.edu.amu.wmi.daut.base.State;
 
-/**
- *
- * @author s362702
- */
 public class CharClassOperator extends NullaryRegexpOperator {
     private String charClass;
 
 
-    public void setCharClass(String class) {
-        this.charClass = class;
+
+    public CharClassOperator(String Class) {
+        charClass = Class;
     }
     @Override
     public AutomatonSpecification createFixedAutomaton() {
@@ -33,4 +31,3 @@ CharClassTransitionLabel(charClass));
         return automaton;
     }
 }
-
