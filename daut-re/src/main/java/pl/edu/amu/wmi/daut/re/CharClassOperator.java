@@ -17,8 +17,8 @@ public class CharClassOperator extends NullaryRegexpOperator {
     private String charClass;
 
 
-    public CharClassOperator(String Class) {
-        charClass = Class;
+    public void setCharClass(String class) {
+        this.charClass = class;
     }
     @Override
     public AutomatonSpecification createFixedAutomaton() {
