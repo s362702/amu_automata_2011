@@ -1,20 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package pl.edu.amu.wmi.daut.re;
-
 
 import pl.edu.amu.wmi.daut.base.AutomatonSpecification;
 import pl.edu.amu.wmi.daut.base.NaiveAutomatonSpecification;
 import pl.edu.amu.wmi.daut.base.CharClassTransitionLabel;
 import pl.edu.amu.wmi.daut.base.State;
 
+ /**
+ * 
+ * Reprezentującą klasę znaków z wyrażeń regularnych 
+ */
 public class CharClassOperator extends NullaryRegexpOperator {
     private String c;
 
-
-
+    /**
+     * 
+     * konstruktor ustawiający klasę znaków 
+     */
     public void setCharClass(String a) {
                 this.c = a;
     }
