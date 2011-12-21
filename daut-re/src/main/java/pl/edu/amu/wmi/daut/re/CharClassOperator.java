@@ -6,15 +6,15 @@ import pl.edu.amu.wmi.daut.base.CharClassTransitionLabel;
 import pl.edu.amu.wmi.daut.base.State;
 
  /**
- * 
- * Reprezentującą klasę znaków z wyrażeń regularnych 
+ *
+ * Reprezentującą klasę znaków z wyrażeń regularnych
  */
 public class CharClassOperator extends NullaryRegexpOperator {
     private String c;
 
     /**
-     * 
-     * konstruktor ustawiający klasę znaków 
+     *
+     * konstruktor ustawiający klasę znaków
      */
     public void setCharClass(String a) {
                 this.c = a;
