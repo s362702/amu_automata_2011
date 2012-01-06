@@ -1,34 +1,36 @@
 package pl.edu.amu.wmi.daut.re;
 
-import java.util.ArrayList;
-import pl.edu.amu.wmi.daut.base.AutomatonSpecification;
 import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import pl.edu.amu.wmi.daut.base.AutomatonSpecification;
 import pl.edu.amu.wmi.daut.base.AutomatonByRecursion;
-import pl.edu.amu.wmi.daut.re.NewLineOperator.Factory;
+import pl.edu.amu.wmi.daut.re.WhitespaceOperator.Factory;
+import java.util.ArrayList;
 
 /**
- * Testy klasy NewLineOperator.
+ * Test klasy WhitespaceOperator.
  */
-public class TestNewLineOperator extends TestCase {
+public class TestWhitespaceOperator extends TestCase {
 
     /**
-     * Test metody CreateFixedAutomaton.
+     * Test metody createFixedAutomaton.
      */
     public void testCreateFixedAutomaton() {
 
-        NewLineOperator operator = new NewLineOperator();
+        WhitespaceOperator operator = new WhitespaceOperator();
         AutomatonSpecification spec = operator.createFixedAutomaton();
         assertFalse(spec.isEmpty());
         assertFalse(spec.acceptEmptyWord());
-
         AutomatonByRecursion automaton = new AutomatonByRecursion(spec);
+        assertTrue(automaton.accepts("\t"));
         assertTrue(automaton.accepts("\n"));
-        assertFalse(automaton.accepts("a"));
+        assertTrue(automaton.accepts("\f"));
+        assertTrue(automaton.accepts("\r"));
+        assertTrue(automaton.accepts("\u000B"));
+        assertFalse(automaton.accepts("'"));
         assertFalse(automaton.accepts("%"));
-        assertFalse(automaton.accepts("\t"));
-        assertFalse(automaton.accepts(" "));
-        assertFalse(automaton.accepts(""));
-        assertFalse(automaton.accepts("\r"));
+        assertFalse(automaton.accepts("4"));
+        assertFalse(automaton.accepts("0"));
     }
 
     /**

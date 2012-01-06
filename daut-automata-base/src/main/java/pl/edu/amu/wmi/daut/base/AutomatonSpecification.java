@@ -793,14 +793,39 @@ public abstract class AutomatonSpecification implements Cloneable  {
      * Sprawdza, czy akceptowany język jest nieskończony.
      */
     public boolean isInfinite() {
-        return findFinals(getInitialState(), new ArrayList<State>());
+        return checkForLoop(getInitialState(), new ArrayList<State>());
+    }
+
+    private boolean checkForLoop(State state, List<State> history) {
+
+        for (State his : history) {
+            if (his == state) {
+                return findFinals(state, new ArrayList<State>());
+            }
+        }
+
+        if (allOutgoingTransitions(state).isEmpty())
+            return false;
+
+        history.add(state);
+
+        boolean result = false;
+        for (OutgoingTransition child : allOutgoingTransitions(state)) {
+            List<State> newHistory = new ArrayList<State>();
+            for (State s : history)
+                newHistory.add(s);
+                result = result || checkForLoop(child.getTargetState(), newHistory);
+            if (result)
+                break;
+        }
+        return result;
     }
 
     private boolean findFinals(State state, List<State> history) {
         boolean result = false;
 
         if (isFinal(state))
-            result = result || checkForLoop(state, new ArrayList<State>());
+            return true;
 
         if (allOutgoingTransitions(state).size() == 0)
             return false;
@@ -816,27 +841,6 @@ public abstract class AutomatonSpecification implements Cloneable  {
             for (State s : history)
                 newHistory.add(s);
             result = result || findFinals(child.getTargetState(), newHistory);
-            if (result)
-                break;
-        }
-        return result;
-    }
-
-    private boolean checkForLoop(State state, List<State> history) {
-        for (State his : history)
-            if (his == state)
-                return isFinal(state);
-
-        if (allOutgoingTransitions(state).size() == 0)
-            return false;
-
-        history.add(state);
-        boolean result = false;
-        for (OutgoingTransition child : allOutgoingTransitions(state)) {
-            List<State> newHistory = new ArrayList<State>();
-            for (State s : history)
-                newHistory.add(s);
-            result = result || checkForLoop(child.getTargetState(), newHistory);
             if (result)
                 break;
         }
@@ -938,7 +942,8 @@ public abstract class AutomatonSpecification implements Cloneable  {
      * Tworzy epsilon domknięcie zadanego stanu.
      */
     public Set<State> getEpsilonClosure(State initial) {
-        return doGetEpsilonClosure(initial);
+        AlwaysAcceptingContextChecker contextChecker = new AlwaysAcceptingContextChecker();
+        return doGetEpsilonClosure(initial, contextChecker);
     }
     /**
      * Odznacza końcowy stan.
@@ -992,33 +997,18 @@ public abstract class AutomatonSpecification implements Cloneable  {
      * Zwraca epsilon domknięcie zadanego stanu, z uwzględnieniem warunków kontekstowych.
      */
     public Set<State> getEpsilonClosureWithContext(State initial, String s, int position) {
-        Integer pos = Integer.valueOf(position);
-        return doGetEpsilonClosure(initial, s, pos);
+        ReallyCheckingContextChecker contextChecker =
+                new ReallyCheckingContextChecker(s, position);
+        return doGetEpsilonClosure(initial, contextChecker);
     }
 
     /**
      * Metoda wyszukująca epsilon domknięcie.
      */
-    private Set<State> doGetEpsilonClosure(State initial, Object... data) {
-        boolean withContext = true;
+    private Set<State> doGetEpsilonClosure(State initial, ContextChecker contextChecker) {
         Set<State> epsilonClosure = new HashSet<State>();
         Set<State> visited = new HashSet<State>();
         Stack<State> stack = new Stack<State>();
-        String s = null;
-        Integer position = null;
-
-        if (data.length == 0) {
-            withContext = false;
-        } else if (data.length == 2) {
-            if (data[0].getClass() != String.class)
-                throw new IllegalArgumentException();
-            s = (String) data[0];
-            if (data[1].getClass() != Integer.class)
-                throw new IllegalArgumentException();
-            position = (Integer) data[1];
-        } else {
-            throw new IllegalArgumentException("Unsupported number of arguments.");
-        }
 
         stack.push(initial);
         epsilonClosure.add(initial);
@@ -1029,25 +1019,16 @@ public abstract class AutomatonSpecification implements Cloneable  {
                 continue;
             }
             visited.add(from);
-            if (withContext) {
-                for (OutgoingTransition trans : allOutgoingTransitions(from)) {
-                    TransitionLabel label = trans.getTransitionLabel();
-                    State to = trans.getTargetState();
-                    if (label.canBeEpsilon() && label.checkContext(s, position.intValue())) {
-                        epsilonClosure.add(to);
-                        stack.push(to);
-                    }
-                }
-            } else {
-                for (OutgoingTransition trans : allOutgoingTransitions(from)) {
-                    TransitionLabel label = trans.getTransitionLabel();
-                    State to = trans.getTargetState();
-                    if (label.canBeEpsilon()) {
-                        epsilonClosure.add(to);
-                        stack.push(to);
-                    }
+
+            for (OutgoingTransition trans : allOutgoingTransitions(from)) {
+                TransitionLabel label = trans.getTransitionLabel();
+                State to = trans.getTargetState();
+                if (label.canBeEpsilon() && contextChecker.check(label)) {
+                    epsilonClosure.add(to);
+                    stack.push(to);
                 }
             }
+
         }
         return epsilonClosure;
     }
